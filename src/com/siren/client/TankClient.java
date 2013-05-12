@@ -8,9 +8,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.siren.tank.Tank;
 import com.siren.tank.impl.EnemyTank;
+import com.siren.tank.impl.GeneralExplode;
 import com.siren.tank.impl.GeneralTank;
 import com.siren.tank.impl.GoodTank;
 
@@ -18,8 +21,9 @@ import com.siren.tank.impl.GoodTank;
 public class TankClient extends Frame {
 
 	// Tank
-	GoodTank friendTank = new GoodTank(50, 50);
-	EnemyTank enemyTank = new EnemyTank(100, 100);
+	public GoodTank friendTank = new GoodTank(50, 50, this);
+	public EnemyTank enemyTank = new EnemyTank(100, 100, this);
+	
 	// frame attributes
 	public static final int LOC_X = 400;
 	public static final int LOC_Y = 300;
@@ -122,7 +126,7 @@ public class TankClient extends Frame {
 	 * 
 	 * @author Siren
 	 * 
-	 */
+	 */ 
 	private class KeyMonitor extends KeyAdapter {
 
 		@Override
@@ -175,7 +179,8 @@ public class TankClient extends Frame {
 				for (int i = 0; i < friendTank.friendMissiles.size(); i++) {
 
 					if (enemyTank != null && friendTank.friendMissiles.get(i).hitTank(enemyTank)) {
-						friendTank.friendMissiles.remove(i);
+						friendTank.friendMissiles.get(i).setLive(false);
+						enemyTank.live = false;
 						enemyTank = null;
 					}
 				}

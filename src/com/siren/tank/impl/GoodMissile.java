@@ -10,10 +10,10 @@ import com.siren.tank.impl.GeneralTank.Direction;
 
 public class GoodMissile extends GeneralMissile {
 
-	public GoodMissile(int x, int y, Direction direction) {
-		super(x, y, direction);
+	public GoodMissile(int x, int y, Direction direction, TankClient tc) {
+		super(x, y, direction, tc);
 	}
-	
+
 	public void drawMissile(Graphics g) {
 		move();
 		Color c = g.getColor();
@@ -63,16 +63,17 @@ public class GoodMissile extends GeneralMissile {
 			live = false;
 		}
 	}
-	
+
 	public Rectangle getRect() {
 		return new Rectangle(x, y, WIDTH, HEIGHT);
 	}
-	
+
 	public boolean hitTank(EnemyTank t) {
-		if(this.getRect().intersects(t.getRect()))
+		if (this.getRect().intersects(t.getRect())) {
+			tc.friendTank.explodes.add(new GeneralExplode(x, y));
 			return true;
+		}
 		return false;
 	}
-	
 
 }

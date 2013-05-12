@@ -19,6 +19,7 @@ public class GeneralTank implements Tank {
 	public static final int WIDTH = 30;
 	public static final int HEIGHT = 30;
 	public static final int SPEED = 5;
+	public boolean live = true;
 	// keyboard attributes
 	protected boolean left = false, up = false, right = false, down = false;
 	enum Direction {
@@ -28,7 +29,9 @@ public class GeneralTank implements Tank {
 	protected Direction lastDirection = Direction.DOWN;
 	// component attributes
 	public List<GoodMissile> friendMissiles = new LinkedList<GoodMissile>();
+	public List<GeneralExplode> explodes = new LinkedList<GeneralExplode>();
 	protected PT friendPT = null;
+	public TankClient tc = null;
 
 	/**
 	 * constructor
@@ -36,10 +39,11 @@ public class GeneralTank implements Tank {
 	 * @param x
 	 * @param y
 	 */
-	public GeneralTank(int x, int y) {
+	public GeneralTank(int x, int y, TankClient tc) {
 		this.x = x;
 		this.y = y;
 		friendPT = new PT(x, y, lastDirection);
+		this.tc = tc;
 	}
 
 	/**
@@ -61,6 +65,16 @@ public class GeneralTank implements Tank {
 					friendMissiles.remove(friendMissiles.get(i));
 				else
 					friendMissiles.get(i).drawMissile(g);
+
+			}
+		}
+		
+		if (explodes != null) {
+			for (int i = 0; i < explodes.size(); i++) {
+				if (!explodes.get(i).isLive())
+					explodes.remove(explodes.get(i));
+				else
+					explodes.get(i).drawExplode(g);
 
 			}
 		}
@@ -218,7 +232,7 @@ public class GeneralTank implements Tank {
 	protected Missile fire() {
 		int x = this.x + GeneralTank.WIDTH / 2 - GoodMissile.WIDTH / 2;
 		int y = this.y + GeneralTank.HEIGHT / 2 - GoodMissile.HEIGHT / 2;
-		GoodMissile m = new GoodMissile(x, y, lastDirection);
+		GoodMissile m = new GoodMissile(x, y, lastDirection, tc);
 		friendMissiles.add(m);
 		return m;
 	}

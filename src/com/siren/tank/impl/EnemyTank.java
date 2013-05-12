@@ -4,14 +4,16 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
+import com.siren.client.TankClient;
+
 public class EnemyTank extends GeneralTank {
 
 	
 	
 	
 	
-	public EnemyTank(int x, int y) {
-		super(x, y);
+	public EnemyTank(int x, int y, TankClient tc) {
+		super(x, y, tc);
 	}
 	
 	public void drawTank(Graphics g) {
@@ -44,6 +46,59 @@ public class EnemyTank extends GeneralTank {
 
 	public Rectangle getRect() {
 		return new Rectangle(x, y, WIDTH, HEIGHT);
+	}
+	
+
+	/**
+	 * change the value of x and y by direction.
+	 */
+	protected void move() {
+		switch (direction) {
+			case LEFT :
+				x -= SPEED;
+				break;
+			case LEFT_UP :
+				x -= SPEED;
+				y -= SPEED;
+				break;
+			case UP :
+				y -= SPEED;
+				break;
+			case RIGHT_UP :
+				x += SPEED;
+				y -= SPEED;
+				break;
+			case RIGHT :
+				x += SPEED;
+				break;
+			case RIGHT_DOWN :
+				x += SPEED;
+				y += SPEED;
+				break;
+			case DOWN :
+				y += SPEED;
+				break;
+			case LEFT_DOWN :
+				x -= SPEED;
+				y += SPEED;
+				break;
+			case STOP :
+				break;
+
+			default :
+				break;
+		}
+
+		if (x < 0)
+			x = 0;
+		if (y < 20)
+			y = 20;
+		if (x + WIDTH > TankClient.SIZE_X)
+			x = TankClient.SIZE_X - WIDTH;
+		if (y + HEIGHT > TankClient.SIZE_Y)
+			y = TankClient.SIZE_Y - HEIGHT;
+		
+			
 	}
 	
 	

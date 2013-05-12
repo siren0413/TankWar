@@ -17,11 +17,13 @@ public class GeneralMissile implements Missile {
 	public static final int SPEED = 10;
 	public GeneralTank.Direction direction;
 	protected boolean live = true;
+	public TankClient tc = null;
 
-	public GeneralMissile(int x, int y, Direction direction) {
+	public GeneralMissile(int x, int y, Direction direction, TankClient tc) {
 		this.x = x;
 		this.y = y;
 		this.direction = direction;
+		this.tc = tc;
 	}
 
 	public void drawMissile(Graphics g) {
