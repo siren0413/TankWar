@@ -11,24 +11,24 @@ import com.siren.client.TankClient;
 import com.siren.tank.Missile;
 import com.siren.tank.Tank;
 
-public class FriendTank implements Tank {
+public class GeneralTank implements Tank {
 
 	// tank attributes
-	private int x = 50;
-	private int y = 50;
+	protected int x = 50;
+	protected int y = 50;
 	public static final int WIDTH = 30;
 	public static final int HEIGHT = 30;
 	public static final int SPEED = 5;
 	// keyboard attributes
-	private boolean left = false, up = false, right = false, down = false;
+	protected boolean left = false, up = false, right = false, down = false;
 	enum Direction {
 		LEFT, LEFT_UP, UP, RIGHT_UP, RIGHT, RIGHT_DOWN, DOWN, LEFT_DOWN, STOP
 	}
-	private Direction direction = Direction.STOP;
-	private Direction lastDirection = Direction.DOWN;
+	protected Direction direction = Direction.STOP;
+	protected Direction lastDirection = Direction.DOWN;
 	// component attributes
-	public List<FriendMissile> friendMissiles = new LinkedList<FriendMissile>();
-	private PT friendPT = null;
+	public List<GoodMissile> friendMissiles = new LinkedList<GoodMissile>();
+	protected PT friendPT = null;
 
 	/**
 	 * constructor
@@ -36,7 +36,7 @@ public class FriendTank implements Tank {
 	 * @param x
 	 * @param y
 	 */
-	public FriendTank(int x, int y) {
+	public GeneralTank(int x, int y) {
 		this.x = x;
 		this.y = y;
 		friendPT = new PT(x, y, lastDirection);
@@ -84,7 +84,7 @@ public class FriendTank implements Tank {
 	/**
 	 * change the value of x and y by direction.
 	 */
-	private void move() {
+	protected void move() {
 		switch (direction) {
 			case LEFT :
 				x -= SPEED;
@@ -170,7 +170,7 @@ public class FriendTank implements Tank {
 	 * @param e
 	 * @param flag
 	 */
-	private void setKeys(KeyEvent e, boolean flag) {
+	protected void setKeys(KeyEvent e, boolean flag) {
 		int key = e.getKeyCode();
 		switch (key) {
 			case KeyEvent.VK_RIGHT :
@@ -193,7 +193,7 @@ public class FriendTank implements Tank {
 	/**
 	 * set the direction of tanks. there are 8 direction and 1 stop.
 	 */
-	private void setTankDirection() {
+	protected void setTankDirection() {
 		if (left && !up && !right && !down)
 			direction = Direction.LEFT;
 		else if (left && up && !right && !down)
@@ -215,10 +215,10 @@ public class FriendTank implements Tank {
 
 	}
 
-	private Missile fire() {
-		int x = this.x + FriendTank.WIDTH / 2 - FriendMissile.WIDTH / 2;
-		int y = this.y + FriendTank.HEIGHT / 2 - FriendMissile.HEIGHT / 2;
-		FriendMissile m = new FriendMissile(x, y, lastDirection);
+	protected Missile fire() {
+		int x = this.x + GeneralTank.WIDTH / 2 - GoodMissile.WIDTH / 2;
+		int y = this.y + GeneralTank.HEIGHT / 2 - GoodMissile.HEIGHT / 2;
+		GoodMissile m = new GoodMissile(x, y, lastDirection);
 		friendMissiles.add(m);
 		return m;
 	}

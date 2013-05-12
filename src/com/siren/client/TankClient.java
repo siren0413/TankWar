@@ -10,13 +10,16 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import com.siren.tank.Tank;
-import com.siren.tank.impl.FriendTank;
+import com.siren.tank.impl.EnemyTank;
+import com.siren.tank.impl.GeneralTank;
+import com.siren.tank.impl.GoodTank;
 
 @SuppressWarnings("serial")
 public class TankClient extends Frame {
 
 	// Tank
-	Tank friendTank = new FriendTank(50, 50);
+	GoodTank friendTank = new GoodTank(50, 50);
+	EnemyTank enemyTank = new EnemyTank(100, 100);
 	// frame attributes
 	public static final int LOC_X = 400;
 	public static final int LOC_Y = 300;
@@ -79,8 +82,8 @@ public class TankClient extends Frame {
 	 * start thread
 	 */
 	private void startThread() {
-		Thread repaintThread = new Thread(new RepaintThread());
-		repaintThread.start();
+		new Thread(new RepaintThread()).start();
+		new Thread(new TankHitThread()).start();
 	}
 
 	/**
@@ -90,7 +93,10 @@ public class TankClient extends Frame {
 	 */
 	@Override
 	public void paint(Graphics g) {
-		friendTank.drawTank(g);
+		if (friendTank != null)
+			friendTank.drawTank(g);
+		if (enemyTank != null)
+			enemyTank.drawTank(g);
 	}
 
 	/**
@@ -148,6 +154,30 @@ public class TankClient extends Frame {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+				}
+			}
+
+		}
+
+	}
+
+	private class TankHitThread implements Runnable {
+
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				for (int i = 0; i < friendTank.friendMissiles.size(); i++) {
+
+					if (enemyTank != null && friendTank.friendMissiles.get(i).hitTank(enemyTank)) {
+						friendTank.friendMissiles.remove(i);
+						enemyTank = null;
+					}
 				}
 			}
 
