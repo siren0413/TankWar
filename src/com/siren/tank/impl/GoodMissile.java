@@ -68,12 +68,6 @@ public class GoodMissile extends GeneralMissile {
 		return new Rectangle(x, y, WIDTH, HEIGHT);
 	}
 
-	public boolean hitTank(EnemyTank t) {
-		if (this.getRect().intersects(t.getRect())) {
-			tc.friendTank.explodes.add(new GeneralExplode(x, y));
-			return true;
-		}
-		return false;
-	}
+	
 
 }

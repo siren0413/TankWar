@@ -2,6 +2,7 @@ package com.siren.tank.impl;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 
 import com.siren.client.TankClient;
 import com.siren.tank.Missile;
@@ -87,6 +88,18 @@ public class GeneralMissile implements Missile {
 
 	public void setLive(boolean live) {
 		this.live = live;
+	}
+	
+	public Rectangle getRect() {
+		return new Rectangle(x, y, WIDTH, HEIGHT);
+	}
+	
+	public boolean hitTank(GeneralTank t) {
+		if (this.getRect().intersects(t.getRect())) {
+			tc.friendTank.explodes.add(new GeneralExplode(x, y));
+			return true;
+		}
+		return false;
 	}
 
 }

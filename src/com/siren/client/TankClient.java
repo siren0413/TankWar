@@ -10,6 +10,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import com.siren.tank.Tank;
 import com.siren.tank.impl.EnemyTank;
@@ -22,8 +23,8 @@ public class TankClient extends Frame {
 
 	// Tank
 	public GoodTank friendTank = new GoodTank(50, 50, this);
-	public EnemyTank enemyTank = new EnemyTank(100, 100, this);
-	
+	public List<EnemyTank> enemyTanks = new LinkedList<EnemyTank>();
+
 	// frame attributes
 	public static final int LOC_X = 400;
 	public static final int LOC_Y = 300;
@@ -45,6 +46,14 @@ public class TankClient extends Frame {
 		// start all thread
 		tc.startThread();
 
+	}
+
+	public TankClient() {
+		for (int i = 1; i <= 10; i++) {
+			EnemyTank enemyTank = new EnemyTank(100 + i * 50, 100, this);
+			enemyTanks.add(enemyTank);
+			enemyTank.startThread();
+		}
 	}
 
 	/**
@@ -99,8 +108,9 @@ public class TankClient extends Frame {
 	public void paint(Graphics g) {
 		if (friendTank != null)
 			friendTank.drawTank(g);
-		if (enemyTank != null)
-			enemyTank.drawTank(g);
+		for (int i = 0; i < enemyTanks.size(); i++) {
+			enemyTanks.get(i).drawTank(g);
+		}
 	}
 
 	/**
@@ -126,17 +136,21 @@ public class TankClient extends Frame {
 	 * 
 	 * @author Siren
 	 * 
-	 */ 
+	 */
 	private class KeyMonitor extends KeyAdapter {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
+			if (friendTank == null)
+				return;
 			friendTank.keyPressed(e);
 
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
+			if (friendTank == null)
+				return;
 			friendTank.keyReleased(e);
 		}
 
@@ -155,7 +169,7 @@ public class TankClient extends Frame {
 			while (true) {
 				repaint();
 				try {
-					Thread.sleep(10);
+					Thread.sleep(20);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -170,20 +184,45 @@ public class TankClient extends Frame {
 		@Override
 		public void run() {
 			while (true) {
+
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 
-				for (int i = 0; i < friendTank.friendMissiles.size(); i++) {
+				if (friendTank == null)
+					return;
 
-					if (enemyTank != null && friendTank.friendMissiles.get(i).hitTank(enemyTank)) {
-						friendTank.friendMissiles.get(i).setLive(false);
-						enemyTank.live = false;
-						enemyTank = null;
+				for (int i = 0; i < friendTank.missiles.size(); i++) {
+
+					if (friendTank == null)
+						return;
+					for (int j = 0; j < enemyTanks.size(); j++) {
+						EnemyTank enemyTank = enemyTanks.get(j);
+						if (enemyTank != null && friendTank.missiles.get(i).hitTank(enemyTank)) {
+							friendTank.missiles.get(i).setLive(false);
+							enemyTank.live = false;
+							enemyTanks.remove(j);
+						}
 					}
+
 				}
+
+				for (int j = 0; j < enemyTanks.size(); j++) {
+					EnemyTank enemyTank = enemyTanks.get(j);
+					for (int k = 0; k < enemyTank.missiles.size(); k++) {
+						if (friendTank == null)
+							return;
+						if (enemyTank != null && enemyTank.missiles.get(k).hitTank(friendTank)) {
+							enemyTank.missiles.get(k).setLive(false);
+							friendTank.live = false;
+							friendTank = null;
+						}
+					}
+
+				}
+
 			}
 
 		}

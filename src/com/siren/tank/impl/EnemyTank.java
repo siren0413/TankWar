@@ -3,34 +3,36 @@ package com.siren.tank.impl;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
 import com.siren.client.TankClient;
+import com.siren.tank.Missile;
 
 public class EnemyTank extends GeneralTank {
 
-	
-	
-	
+	private static Random random = new Random(System.currentTimeMillis());
 	
 	public EnemyTank(int x, int y, TankClient tc) {
 		super(x, y, tc);
+		speed = 2;
 	}
-	
+
 	public void drawTank(Graphics g) {
-
 		move();
-
 		Color c = g.getColor();
 		g.setColor(Color.BLUE);
 		g.fillOval(x, y, WIDTH, HEIGHT);
 		g.setColor(c);
 
-		if (friendMissiles != null) {
-			for (int i = 0; i < friendMissiles.size(); i++) {
-				if (!friendMissiles.get(i).isLive())
-					friendMissiles.remove(friendMissiles.get(i));
+		if (missiles != null) {
+			for (int i = 0; i < missiles.size(); i++) {
+				if (!missiles.get(i).isLive()) {
+					missiles.remove(missiles.get(i));
+				}
 				else
-					friendMissiles.get(i).drawMissile(g);
+					missiles.get(i).drawMissile(g);
 
 			}
 		}
@@ -47,59 +49,100 @@ public class EnemyTank extends GeneralTank {
 	public Rectangle getRect() {
 		return new Rectangle(x, y, WIDTH, HEIGHT);
 	}
-	
 
-	/**
-	 * change the value of x and y by direction.
-	 */
-	protected void move() {
-		switch (direction) {
-			case LEFT :
-				x -= SPEED;
+	public void randomMove() {
+		int index = random.nextInt(9);
+		switch (index) {
+			case 0 :
+				direction = Direction.LEFT;
 				break;
-			case LEFT_UP :
-				x -= SPEED;
-				y -= SPEED;
+			case 1 :
+				direction = Direction.LEFT_UP;
 				break;
-			case UP :
-				y -= SPEED;
+			case 2 :
+				direction = Direction.UP;
 				break;
-			case RIGHT_UP :
-				x += SPEED;
-				y -= SPEED;
+			case 3 :
+				direction = Direction.RIGHT_UP;
 				break;
-			case RIGHT :
-				x += SPEED;
+			case 4 :
+				direction = Direction.RIGHT;
 				break;
-			case RIGHT_DOWN :
-				x += SPEED;
-				y += SPEED;
+			case 5 :
+				direction = Direction.RIGHT_DOWN;
 				break;
-			case DOWN :
-				y += SPEED;
+			case 6 :
+				direction = Direction.DOWN;
 				break;
-			case LEFT_DOWN :
-				x -= SPEED;
-				y += SPEED;
+			case 7 :
+				direction = Direction.LEFT_DOWN;
 				break;
-			case STOP :
+			case 8 :
+				direction = Direction.STOP;
 				break;
 
 			default :
 				break;
 		}
-
-		if (x < 0)
-			x = 0;
-		if (y < 20)
-			y = 20;
-		if (x + WIDTH > TankClient.SIZE_X)
-			x = TankClient.SIZE_X - WIDTH;
-		if (y + HEIGHT > TankClient.SIZE_Y)
-			y = TankClient.SIZE_Y - HEIGHT;
-		
-			
 	}
 	
+	protected Missile fire() {
+		int x = this.x + GeneralTank.WIDTH / 2 - GoodMissile.WIDTH / 2;
+		int y = this.y + GeneralTank.HEIGHT / 2 - GoodMissile.HEIGHT / 2;
+		EnemyMissile m = new EnemyMissile(x, y, lastDirection, tc);
+		missiles.add(m);
+		return m;
+	}
+
+	public void startThread() {
+		new Thread(new EnemyTankThread()).start();
+		new Thread(new EnemyTankFireThread()).start();
+	}
+
+	private class EnemyTankThread implements Runnable {
+
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					Thread.sleep(random.nextInt(1000));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				if (!live)
+					return;
+				randomMove();
+			}
+
+		}
+
+	}
+
+	private class EnemyTankFireThread implements Runnable {
+
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					Thread.sleep(200 + random.nextInt(800));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				fire();
+			}
+
+		}
+
+	}
 	
+	public boolean hitTank(GoodTank t) {
+		if (this.getRect().intersects(t.getRect())) {
+			tc.friendTank.explodes.add(new GeneralExplode(x, y));
+			return true;
+		}
+		return false;
+	}
+	
+
+
 }

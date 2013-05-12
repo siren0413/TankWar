@@ -2,6 +2,7 @@ package com.siren.tank.impl;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -16,9 +17,9 @@ public class GeneralTank implements Tank {
 	// tank attributes
 	protected int x = 50;
 	protected int y = 50;
+	public int speed = 5;
 	public static final int WIDTH = 30;
 	public static final int HEIGHT = 30;
-	public static final int SPEED = 5;
 	public boolean live = true;
 	// keyboard attributes
 	protected boolean left = false, up = false, right = false, down = false;
@@ -28,7 +29,7 @@ public class GeneralTank implements Tank {
 	protected Direction direction = Direction.STOP;
 	protected Direction lastDirection = Direction.DOWN;
 	// component attributes
-	public List<GoodMissile> friendMissiles = new LinkedList<GoodMissile>();
+	public List<GeneralMissile> missiles = new LinkedList<GeneralMissile>();
 	public List<GeneralExplode> explodes = new LinkedList<GeneralExplode>();
 	protected PT friendPT = null;
 	public TankClient tc = null;
@@ -59,16 +60,16 @@ public class GeneralTank implements Tank {
 		g.fillOval(x, y, WIDTH, HEIGHT);
 		g.setColor(c);
 
-		if (friendMissiles != null) {
-			for (int i = 0; i < friendMissiles.size(); i++) {
-				if (!friendMissiles.get(i).isLive())
-					friendMissiles.remove(friendMissiles.get(i));
+		if (missiles != null) {
+			for (int i = 0; i < missiles.size(); i++) {
+				if (!missiles.get(i).isLive())
+					missiles.remove(missiles.get(i));
 				else
-					friendMissiles.get(i).drawMissile(g);
+					missiles.get(i).drawMissile(g);
 
 			}
 		}
-		
+
 		if (explodes != null) {
 			for (int i = 0; i < explodes.size(); i++) {
 				if (!explodes.get(i).isLive())
@@ -92,41 +93,41 @@ public class GeneralTank implements Tank {
 	 * draw tank information.
 	 */
 	public void drawTankInfo(Graphics g) {
-		g.drawString("missiles count:" + friendMissiles.size(), 10, 50);
+		g.drawString("missiles count:" + missiles.size(), 10, 40);
+		g.drawString("explodes count:" + explodes.size(), 10, 55);
 	}
-
 	/**
 	 * change the value of x and y by direction.
 	 */
 	protected void move() {
 		switch (direction) {
 			case LEFT :
-				x -= SPEED;
+				x -= speed;
 				break;
 			case LEFT_UP :
-				x -= SPEED;
-				y -= SPEED;
+				x -= speed;
+				y -= speed;
 				break;
 			case UP :
-				y -= SPEED;
+				y -= speed;
 				break;
 			case RIGHT_UP :
-				x += SPEED;
-				y -= SPEED;
+				x += speed;
+				y -= speed;
 				break;
 			case RIGHT :
-				x += SPEED;
+				x += speed;
 				break;
 			case RIGHT_DOWN :
-				x += SPEED;
-				y += SPEED;
+				x += speed;
+				y += speed;
 				break;
 			case DOWN :
-				y += SPEED;
+				y += speed;
 				break;
 			case LEFT_DOWN :
-				x -= SPEED;
-				y += SPEED;
+				x -= speed;
+				y += speed;
 				break;
 			case STOP :
 				break;
@@ -134,6 +135,10 @@ public class GeneralTank implements Tank {
 			default :
 				break;
 		}
+
+		// set the last direction.
+		if (direction != Direction.STOP)
+			lastDirection = direction;
 
 		if (x < 0)
 			x = 0;
@@ -153,9 +158,6 @@ public class GeneralTank implements Tank {
 		setKeys(e, true);
 		// set the direction of tank.
 		setTankDirection();
-		// set the last direction.
-		if (direction != Direction.STOP)
-			lastDirection = direction;
 		// set control key
 		switch (e.getKeyCode()) {
 			case KeyEvent.VK_CONTROL :
@@ -229,11 +231,15 @@ public class GeneralTank implements Tank {
 
 	}
 
+	public Rectangle getRect() {
+		return new Rectangle(x, y, WIDTH, HEIGHT);
+	}
+
 	protected Missile fire() {
 		int x = this.x + GeneralTank.WIDTH / 2 - GoodMissile.WIDTH / 2;
 		int y = this.y + GeneralTank.HEIGHT / 2 - GoodMissile.HEIGHT / 2;
 		GoodMissile m = new GoodMissile(x, y, lastDirection, tc);
-		friendMissiles.add(m);
+		missiles.add(m);
 		return m;
 	}
 
